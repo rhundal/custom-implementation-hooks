@@ -42,8 +42,8 @@ interface PaginationObject {
 
 interface PaginationProps {
   totalItems: number;
-  itemsPerPage: number;
-  initialPage: number;
+  itemsPerPage?: number;
+  initialPage?: number;
 }
 
 export default function usePagination({
@@ -61,63 +61,56 @@ export default function usePagination({
   let itemsOnCurrentPage = 0;
   let canNextPage = false,
     canPrevPage = false;
-  let totalItemsDisplayed = 0;
-  let numOfItemsOnLastPage = 0;
 
   // 1. Calculate totalPages correctly (e.g., using Math.ceil)
 
-  totalPagesCalculated =
-    totalItems > 0 && itemsPerPage >= 1
-      ? Math.ceil(totalItems / itemsPerPage)
-      : 0;
+  const safeTotalItems = Math.max(0, totalItems);
+  const safeItemsPerPage = Math.max(1, itemsPerPage);
+
+  totalPagesCalculated = Math.max(
+    1,
+    Math.ceil(safeTotalItems / safeItemsPerPage),
+  );
+
+  canNextPage = currentPage < totalPagesCalculated;
+  canPrevPage = currentPage > 1;
 
   useEffect(() => {
     // 2. Ensure currentPage does not go below 1 or above totalPages.
 
+    if (currentPage > totalPagesCalculated) {
+      setCurrentPage(totalPagesCalculated);
+    }
+
     if (currentPage < 1) {
       setCurrentPage(1);
-    } else if (currentPage > totalPagesCalculated) {
-      setCurrentPage(totalPagesCalculated - 1);
     }
-
-    const hasNext = currentPage < totalPagesCalculated;
-    const hasPrev = currentPage > 1;
-
-    canNextPage = hasNext;
-    canPrevPage = hasPrev;
   }, [totalPagesCalculated, currentPage]);
 
-  useEffect(() => {
-    // 3. startIndex and endIndex should be calculated based on the currentPage and itemsPerPage.
+  // 3. startIndex and endIndex should be calculated based on the currentPage and itemsPerPage.
 
-    startIndex = startIndex + itemsPerPage;
-    endIndex = endIndex + startIndex;
-  }, [currentPage]);
+  startIndex = (currentPage - 1) * itemsPerPage;
+  endIndex = Math.min(startIndex + itemsPerPage - 1, totalItems - 1);
 
-  useEffect(() => {
-    // 4. itemsOnCurrentPage should correctly reflect the count for the last page if it’s not full.
+  // 4. itemsOnCurrentPage should correctly reflect the count for the last page if it’s not full.
 
-    totalItemsDisplayed = currentPage * itemsPerPage;
-    numOfItemsOnLastPage = totalItems - totalItemsDisplayed;
-    if (currentPage === totalPagesCalculated) {
-      itemsOnCurrentPage = numOfItemsOnLastPage;
-    } else {
-      itemsOnCurrentPage = itemsPerPage;
-    }
-  }, [currentPage]);
+  itemsOnCurrentPage = Math.max(
+    0,
+    Math.min(itemsPerPage, totalItems - startIndex),
+  );
 
   function setPage(pageNumber: number) {
-    setCurrentPage(pageNumber);
+    const clampedPage = Math.min(Math.max(1, pageNumber), totalPagesCalculated);
+
+    setCurrentPage(clampedPage);
   }
 
   function nextPage() {
-    let pageNo = currentPage + 1;
-    setCurrentPage(pageNo);
+    setCurrentPage((prev) => Math.min(prev + 1, totalPagesCalculated));
   }
 
   function prevPage() {
-    let pageNo = currentPage - 1;
-    setCurrentPage(pageNo);
+    setCurrentPage((prev) => Math.max(prev - 1, 1));
   }
 
   let instancePaginationOb = {
