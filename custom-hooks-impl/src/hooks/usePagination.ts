@@ -64,14 +64,12 @@ export default function usePagination({
   let totalItemsDisplayed = 0;
   let numOfItemsOnLastPage = 0;
 
-  useEffect(() => {
-    // 1. Calculate totalPages correctly (e.g., using Math.ceil)
+  // 1. Calculate totalPages correctly (e.g., using Math.ceil)
 
-    totalPagesCalculated =
-      totalItems > 0 && itemsPerPage >= 1
-        ? Math.ceil(totalItems / itemsPerPage)
-        : 0;
-  }, [totalItems, itemsPerPage]);
+  totalPagesCalculated =
+    totalItems > 0 && itemsPerPage >= 1
+      ? Math.ceil(totalItems / itemsPerPage)
+      : 0;
 
   useEffect(() => {
     // 2. Ensure currentPage does not go below 1 or above totalPages.
