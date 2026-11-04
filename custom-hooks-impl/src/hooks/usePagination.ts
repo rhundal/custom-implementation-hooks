@@ -53,7 +53,8 @@ export default function usePagination({
 }: PaginationProps): PaginationObject {
   const [currentPage, setCurrentPage] = useState(initialPage);
 
-  // I decided to have a useEffect for each calculation
+  // I decided to have a useEffect for each calculation initially. But my decision was wrong,
+  // I misunderstood the role of useEffect and so I removed the derived values from useEffect so they are calculated during rendering instead.
 
   let totalPagesCalculated = 0;
   let startIndex = 0,
