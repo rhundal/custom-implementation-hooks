@@ -2,10 +2,10 @@ import { useState } from "react";
 
 import "./App.css";
 
-function App() {
-  const [count, setCount] = useState(0);
+import PaginationDemo from "./example-components/PaginationDemo";
 
-  return <></>;
+function App() {
+  return <PaginationDemo />;
 }
 
 export default App;
