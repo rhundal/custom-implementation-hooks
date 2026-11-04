@@ -76,9 +76,6 @@ export default function usePagination({
 
     if (currentPage < 1) {
       setCurrentPage(1);
-    } else if (currentPage > 2 && currentPage < totalPagesCalculated) {
-      let prevPageNumber = currentPage;
-      setCurrentPage(prevPageNumber + 1);
     } else if (currentPage > totalPagesCalculated) {
       setCurrentPage(totalPagesCalculated - 1);
     }
