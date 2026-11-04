@@ -40,26 +40,37 @@ interface PaginationObject {
   canPrevPage: boolean;
 }
 
-function usePagination(
-  totalItems: number,
-  itemsPerPage: number = 10,
-  initialPage: number = 1,
-): PaginationObject {
+interface PaginationProps {
+  totalItems: number;
+  itemsPerPage: number;
+  initialPage: number;
+}
+
+export default function usePagination({
+  totalItems,
+  itemsPerPage = 10,
+  initialPage = 1,
+}: PaginationProps): PaginationObject {
   const [currentPage, setCurrentPage] = useState(initialPage);
-  const [totalPages, setTotalPages] = useState(0);
-  const [startIndex, setStartIndex] = useState(0);
-  const [endIndex, setEndIndex] = useState(0);
-  const [itemsOnCurrentPage, setItemsOnCurrentPage] = useState(0);
-  const [canNextPage, setCanNextPage] = useState(false);
-  const [canPrevPage, setCanPrevPage] = useState(false);
 
   // I decided to have a useEffect for each calculation
+
+  let totalPagesCalculated = 0;
+  let startIndex = 0,
+    endIndex = 0;
+  let itemsOnCurrentPage = 0;
+  let canNextPage = false,
+    canPrevPage = false;
+  let totalItemsDisplayed = 0;
+  let numOfItemsOnLastPage = 0;
 
   useEffect(() => {
     // 1. Calculate totalPages correctly (e.g., using Math.ceil)
 
-    const totalPagesCalculated = Math.ceil(totalItems / itemsPerPage);
-    setTotalPages(totalPagesCalculated);
+    totalPagesCalculated =
+      totalItems > 0 && itemsPerPage >= 1
+        ? Math.ceil(totalItems / itemsPerPage)
+        : 0;
   }, [totalItems, itemsPerPage]);
 
   useEffect(() => {
@@ -67,36 +78,36 @@ function usePagination(
 
     if (currentPage < 1) {
       setCurrentPage(1);
-    } else if (currentPage > 2 && currentPage < totalPages) {
+    } else if (currentPage > 2 && currentPage < totalPagesCalculated) {
       let prevPageNumber = currentPage;
       setCurrentPage(prevPageNumber + 1);
-    } else if (currentPage > totalPages) {
-      setCurrentPage(totalPages - 1);
+    } else if (currentPage > totalPagesCalculated) {
+      setCurrentPage(totalPagesCalculated - 1);
     }
 
-    const hasNext = currentPage < totalPages;
+    const hasNext = currentPage < totalPagesCalculated;
     const hasPrev = currentPage > 1;
 
-    setCanNextPage(hasNext);
-    setCanPrevPage(hasPrev);
-  }, [totalPages]);
+    canNextPage = hasNext;
+    canPrevPage = hasPrev;
+  }, [totalPagesCalculated, currentPage]);
 
   useEffect(() => {
     // 3. startIndex and endIndex should be calculated based on the currentPage and itemsPerPage.
 
-    setStartIndex(startIndex + itemsPerPage);
-    setEndIndex(endIndex + startIndex); // because its 0 based
+    startIndex = startIndex + itemsPerPage;
+    endIndex = endIndex + startIndex;
   }, [currentPage]);
 
   useEffect(() => {
     // 4. itemsOnCurrentPage should correctly reflect the count for the last page if it’s not full.
 
-    let totalItemsDisplayed = currentPage * itemsPerPage;
-    let numOfItemsOnLastPage = totalItems - totalItemsDisplayed;
-    if (currentPage === totalPages) {
-      setItemsOnCurrentPage(numOfItemsOnLastPage);
+    totalItemsDisplayed = currentPage * itemsPerPage;
+    numOfItemsOnLastPage = totalItems - totalItemsDisplayed;
+    if (currentPage === totalPagesCalculated) {
+      itemsOnCurrentPage = numOfItemsOnLastPage;
     } else {
-      setItemsOnCurrentPage(itemsPerPage);
+      itemsOnCurrentPage = itemsPerPage;
     }
   }, [currentPage]);
 
@@ -116,7 +127,7 @@ function usePagination(
 
   let instancePaginationOb = {
     currentPage: currentPage,
-    totalPages: totalPages,
+    totalPages: totalPagesCalculated,
     startIndex: startIndex,
     endIndex: endIndex,
     itemsOnCurrentPage: itemsOnCurrentPage,
