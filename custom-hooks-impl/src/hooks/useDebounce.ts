@@ -18,3 +18,32 @@ The effect should clear the timer (using clearTimeout) if value or delay changes
 When the timer finally fires, update the debouncedValue state.
 
 */
+
+import { useEffect, useState } from "react";
+
+interface DebounceReturnObject {
+  debounceValue: string;
+}
+
+interface PaginationProps {
+  value: string;
+  delay: number;
+}
+
+export default function useDebounce(
+  props: PaginationProps,
+): DebounceReturnObject {
+  const [debounceVal, setDebounceVal] = useState<string>(props.value);
+
+  useEffect(() => {
+    const timerId = setTimeout(() => {
+      setDebounceVal(props.value);
+    }, props.delay);
+
+    return () => {
+      clearTimeout(timerId);
+    };
+  }, [props.value, props.delay]);
+
+  return { debounceValue: debounceVal };
+}

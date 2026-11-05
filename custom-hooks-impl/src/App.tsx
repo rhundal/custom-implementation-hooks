@@ -3,7 +3,7 @@ import { useState } from "react";
 import "./App.css";
 
 import PaginationDemo from "./example-components/PaginationDemo";
-
+import DebounceSearchDemo from "./example-components/DebounceSearchDemo";
 interface PaginationProps {
   totalItems: number;
   itemsPerPage?: number;
@@ -21,6 +21,7 @@ function App() {
       <PaginationDemo {...objToPass} />
       ;
       <hr className="border-t-4 border-dotted border-gray-300 rounded-xl shadow-xl w-[1300px] mx-auto" />
+      <DebounceSearchDemo />
     </>
   );
 }
