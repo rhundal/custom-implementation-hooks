@@ -20,3 +20,9 @@
 - cd custom-hooks-impl
 - npm install
 - npm run dev
+
+#### Known Bugs
+
+- PaginationDemo component has issues 
+  - worked on displaying items based on itemsToDisplay. Not fully working as expected
+  - the items repeat on the next page and the count is incorrect on the last page for scenariors when itemsToDisplay is selected from dropdown
